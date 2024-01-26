@@ -456,10 +456,7 @@ class Model:
                             
             recall = num_correct_boxes / num_gt_boxes
             precision = num_correct_boxes / num_det_boxes
-            try:
-                hmean = 2 * precision * recall / (precision + recall)
-            except:
-                hmean = 0
+            hmean = 2 * precision * recall / (precision + recall)
         return recall, precision, hmean
     
     def get_lr(self, optimizer):
@@ -576,7 +573,9 @@ class Model:
 
             iterable = tqdm(dataset, position=0, leave=True) if verbose else dataset
             losses = []
+            len_dataset = 0
             for images, targets in iterable:
+                len_dataset += 1
                 self._convert_to_int_labels(targets)
                 images, targets = self._to_device(images, targets)
 
@@ -601,8 +600,7 @@ class Model:
                 # Update model parameters from gradients: param -= learning_rate * param.grad
                 optimizer.step()
             history['loss'].append(torch.tensor(losses).mean().item())
-            total_loss = sum(loss for loss in losses)
-            avg_loss_trainset = total_loss/len(dataset.dataset)
+            avg_loss_train = sum(history['loss']/len_dataset)
 
             print(self.get_lr(optimizer))
             del losses
@@ -621,19 +619,21 @@ class Model:
                         total_loss = sum(loss for loss in loss_dict.values())
                         avg_loss += total_loss.item()
 
-                recall_trainset, precision_trainset, hmean_trainset = self.eval_detection(dataset, threshiou)
-                recall_validset, precision_validset, hmean_validset = self.eval_detection(val_dataset, threshiou)
+                recall_train, precision_train, hmean_train = self.eval_detection(dataset, threshiou)
+
+                recall, precision, hmean = self.eval_detection(val_dataset, threshiou)
                 avg_loss /= len(val_dataset.dataset)
                 history['val_loss'].append(avg_loss)
-                history['recall'].append(recall_validset)
-                history['precision'].append(precision_validset)
-                history['hmean'].append(hmean_validset)
+                history['recall'].append(recall)
+                history['precision'].append(precision)
+                history['hmean'].append(hmean)
 
                 if verbose:
-                    print('Train Set:')
-                    print('Recall:', recall_trainset, '- Precision:', precision_trainset, '- Hmean:', hmean_trainset, 'Valid Loss: {}'.format(avg_loss_trainset))
-                    print('Valid Set:')
-                    print('Recall:', recall_validset, '- Precision:', precision_validset, '- Hmean:', hmean_validset, 'Valid Loss: {}'.format(avg_loss))
+                    print("Train")
+                    print('Recall:', recall_train, '- Precision:', precision_train, '- Hmean:', hmean_train, '- Valid Loss: {}'.format(avg_loss_train))
+                    print("Valid")
+                    print('Recall:', recall, '- Precision:', precision, '- Hmean:', hmean, '- Valid Loss: {}'.format(avg_loss))
+                    print()
 
                 if os.path.isdir('save') is not True:
                     os.mkdir('save')
@@ -641,11 +641,10 @@ class Model:
                 # Save model
                 if avg_loss < previous_loss:
                     previous_loss = avg_loss
-                    print('Best model saved at epoch {} with valid loss {}'.format(epoch + 1, avg_loss))
+                    print('best model saved at epoch {} with valid loss {}'.format(epoch, avg_loss))
                     self.save(os.path.join('save', 'best-model.pth'))
-                
-                # print('model saved!')
-                # self.save(os.path.join('save', f'weight-model-{epoch}.pth'))
+                print('model saved!')
+                self.save(os.path.join('save', f'weight-model-{epoch}.pth'))
 
             # Update the learning rate every few epochs
             lr_scheduler.step()
