@@ -618,7 +618,8 @@ class Model:
                         total_loss = sum(loss for loss in loss_dict.values())
                         avg_loss += total_loss.item()
 
-                recall, precision, hmean = self.eval_detection(val_dataset, threshiou)
+                recall_trainset, precision_trainset, hmean_trainset = self.eval_detection(dataset, threshiou)
+                recall_validset, precision_validset, hmean_validset = self.eval_detection(val_dataset, threshiou)
                 avg_loss /= len(val_dataset.dataset)
                 history['val_loss'].append(avg_loss)
                 history['recall'].append(recall)
@@ -626,10 +627,10 @@ class Model:
                 history['hmean'].append(hmean)
 
                 if verbose:
-                    print('Recall:', recall)
-                    print('Precision:', precision)
-                    print('Hmean:', hmean)
-                    print('Loss: {}'.format(avg_loss))
+                    print('Train Set:')
+                    print('Recall:', recall_validset, '- Precision:', precision_validset, '- Hmean:', hmean_validset, 'Valid Loss: {}'.format(avg_loss))
+                    print('Valid Set:')
+                    print('Recall:', recall_validset, '- Precision:', precision_validset, '- Hmean:', hmean_validset, 'Valid Loss: {}'.format(avg_loss))
 
                 if os.path.isdir('save') is not True:
                     os.mkdir('save')
@@ -637,10 +638,11 @@ class Model:
                 # Save model
                 if avg_loss < previous_loss:
                     previous_loss = avg_loss
-                    print('best model saved at epoch {} with valid loss {}'.format(epoch, avg_loss))
+                    print('Best model saved at epoch {} with valid loss {}'.format(epoch + 1, avg_loss))
                     self.save(os.path.join('save', 'best-model.pth'))
-                print('model saved!')
-                self.save(os.path.join('save', f'weight-model-{epoch}.pth'))
+                
+                # print('model saved!')
+                # self.save(os.path.join('save', f'weight-model-{epoch}.pth'))
 
             # Update the learning rate every few epochs
             lr_scheduler.step()
