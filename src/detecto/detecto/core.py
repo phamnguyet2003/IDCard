@@ -602,7 +602,7 @@ class Model:
                 optimizer.step()
             history['loss'].append(torch.tensor(losses).mean().item())
             total_loss = sum(loss for loss in losses)
-            avg_loss_trainset /= len(dataset.dataset)
+            avg_loss_trainset = total_loss/len(dataset.dataset)
 
             print(self.get_lr(optimizer))
             del losses
@@ -625,9 +625,9 @@ class Model:
                 recall_validset, precision_validset, hmean_validset = self.eval_detection(val_dataset, threshiou)
                 avg_loss /= len(val_dataset.dataset)
                 history['val_loss'].append(avg_loss)
-                history['recall'].append(recall)
-                history['precision'].append(precision)
-                history['hmean'].append(hmean)
+                history['recall'].append(recall_validset)
+                history['precision'].append(precision_validset)
+                history['hmean'].append(hmean_validset)
 
                 if verbose:
                     print('Train Set:')
