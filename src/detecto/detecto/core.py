@@ -600,7 +600,7 @@ class Model:
                 # Update model parameters from gradients: param -= learning_rate * param.grad
                 optimizer.step()
             history['loss'].append(torch.tensor(losses).mean().item())
-            avg_loss_train = sum(history['loss']/len_dataset)
+            avg_loss_train = sum(history['loss'])/len_dataset
 
             print(self.get_lr(optimizer))
             del losses
