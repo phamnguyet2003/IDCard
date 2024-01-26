@@ -573,9 +573,7 @@ class Model:
 
             iterable = tqdm(dataset, position=0, leave=True) if verbose else dataset
             losses = []
-            len_dataset = 0
             for images, targets in iterable:
-                len_dataset += 1
                 self._convert_to_int_labels(targets)
                 images, targets = self._to_device(images, targets)
 
@@ -600,8 +598,6 @@ class Model:
                 # Update model parameters from gradients: param -= learning_rate * param.grad
                 optimizer.step()
             history['loss'].append(torch.tensor(losses).mean().item())
-            avg_loss_train = sum(history['loss'])/len_dataset
-
             print(self.get_lr(optimizer))
             del losses
             # Validation step
@@ -619,8 +615,6 @@ class Model:
                         total_loss = sum(loss for loss in loss_dict.values())
                         avg_loss += total_loss.item()
 
-                recall_train, precision_train, hmean_train = self.eval_detection(dataset, threshiou)
-
                 recall, precision, hmean = self.eval_detection(val_dataset, threshiou)
                 avg_loss /= len(val_dataset.dataset)
                 history['val_loss'].append(avg_loss)
@@ -629,11 +623,10 @@ class Model:
                 history['hmean'].append(hmean)
 
                 if verbose:
-                    print("Train")
-                    print('Recall:', recall_train, '- Precision:', precision_train, '- Hmean:', hmean_train, '- Valid Loss: {}'.format(avg_loss_train))
-                    print("Valid")
-                    print('Recall:', recall, '- Precision:', precision, '- Hmean:', hmean, '- Valid Loss: {}'.format(avg_loss))
-                    print()
+                    print('Recall:', recall)
+                    print('Precision:', precision)
+                    print('Hmean:', hmean)
+                    print('Loss: {}'.format(avg_loss))
 
                 if os.path.isdir('save') is not True:
                     os.mkdir('save')
