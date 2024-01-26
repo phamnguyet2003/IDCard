@@ -601,6 +601,9 @@ class Model:
                 # Update model parameters from gradients: param -= learning_rate * param.grad
                 optimizer.step()
             history['loss'].append(torch.tensor(losses).mean().item())
+            total_loss = sum(loss for loss in losses)
+            avg_loss_trainset /= len(dataset.dataset)
+
             print(self.get_lr(optimizer))
             del losses
             # Validation step
@@ -628,7 +631,7 @@ class Model:
 
                 if verbose:
                     print('Train Set:')
-                    print('Recall:', recall_validset, '- Precision:', precision_validset, '- Hmean:', hmean_validset, 'Valid Loss: {}'.format(avg_loss))
+                    print('Recall:', recall_trainset, '- Precision:', precision_trainset, '- Hmean:', hmean_trainset, 'Valid Loss: {}'.format(avg_loss_trainset))
                     print('Valid Set:')
                     print('Recall:', recall_validset, '- Precision:', precision_validset, '- Hmean:', hmean_validset, 'Valid Loss: {}'.format(avg_loss))
 
