@@ -456,7 +456,10 @@ class Model:
                             
             recall = num_correct_boxes / num_gt_boxes
             precision = num_correct_boxes / num_det_boxes
-            hmean = 2 * precision * recall / (precision + recall)
+            try:
+                hmean = 2 * precision * recall / (precision + recall)
+            except:
+                hmean = 0
         return recall, precision, hmean
     
     def get_lr(self, optimizer):
