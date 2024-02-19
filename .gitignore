@@ -1,0 +1,10 @@
+*.ipynb
+*.pth
+image_crop/
+weight/
+__pycache__/
+test/
+rec_crop/
+testset/
+notebooks/
+classifer_number/
