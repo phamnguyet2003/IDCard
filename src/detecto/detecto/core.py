@@ -438,7 +438,8 @@ class Model:
                 for images, targets in val_dataset:
                     self._convert_to_int_labels(targets)
                     images, targets = self._to_device(images, targets)
-                    labels, bboxes, scores = self.predict_top(images)[0]
+                    # labels, bboxes, scores = self.predict_top(images)[0]
+                    labels, bboxes, scores = self.predict(images)[0]
                     final_boxes, final_labels, final_scores = non_max_suppression_fast(bboxes.numpy(), labels, 0.15, scores)
                     preds = [{
                         'boxes': torch.tensor(final_boxes).to(self._device),
