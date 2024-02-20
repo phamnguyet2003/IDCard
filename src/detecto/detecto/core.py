@@ -445,7 +445,7 @@ class Model:
                         'boxes': torch.tensor(final_boxes).to(self._device),
                         'labels': torch.tensor([self._int_mapping[label] for label in final_labels]).to(self._device),
                         'scores': torch.tensor(final_scores).to(self._device)
-                    }]
+                    }]     
                     # preds = self._model(images)
                     num_gt_boxes += len(targets[0]['boxes'])
                     num_det_boxes += len(final_boxes)
@@ -638,7 +638,7 @@ class Model:
                 # Save model
                 if avg_loss < previous_loss:
                     previous_loss = avg_loss
-                    print('best model saved at epoch {} with valid loss {}'.format(epoch, avg_loss))
+                    print('best model saved at epoch {} with valid loss {}'.format(epoch+1, avg_loss))
                     self.save(os.path.join('save', 'best-model.pth'))
                 print('model saved!')
                 self.save(os.path.join('save', f'weight-model-{epoch}.pth'))
